@@ -58,11 +58,15 @@ std::vector<std::vector<SIM::colour>>& FluidSim::getCurrentState() {
 	{
 		for (int j = 0; j < m_size; ++j)
 		{
-			
-			auto val = (uint8_t)(m_s[i][j] * 52.0);
+
+			int val = m_s[i][j]* 52;
 			if (val > 255)val = 255;
-			if (val < 0)val = -val;
-			m_currentState[j][i] = colour{ val,val,val };
+			if (val < 0)val = 0;
+			auto valCasted = (uint8_t)(val);
+			//TODO asses the performance impact of this calculation
+			float combinedSpeedVal =1-sqrt(m_velY[i][j]* m_velY[i][j] + m_velX[i][j]* m_velX[i][j]);
+			
+			m_currentState[j][i] = colour{ valCasted,(uint8_t)(valCasted* combinedSpeedVal),(uint8_t)(valCasted* combinedSpeedVal) };
 		}
 	}
 	return m_currentState;
