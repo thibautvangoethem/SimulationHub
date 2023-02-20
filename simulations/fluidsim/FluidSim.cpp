@@ -160,7 +160,8 @@ void FluidSim::advect(int b, std::vector<std::vector<float>>& d, std::vector<std
 	float tmp1=0, tmp2=0, x=0, y=0;
 
 	float Nfloat = m_size - 2;
-	for (unsigned int i = 1; i < m_size - 1; i++)
+	static int s = m_size - 1;
+	for (unsigned int i = 1; i < s; i++)
 	{
 		for (unsigned int j = 1; j < m_size - 1; j++)
 		{
@@ -170,11 +171,11 @@ void FluidSim::advect(int b, std::vector<std::vector<float>>& d, std::vector<std
 			y = j - tmp2;
 			if (x < 0.5)x = 0.5;
 			if (x > Nfloat + 0.5)x = Nfloat + 0.5;
-			i0 = std::floor(x);
+			i0 = static_cast<int>(x);
 			i1 = i0 + 1;
 			if (y < 0.5)x = 0.5;
 			if (y > Nfloat + 0.5)y = Nfloat + 0.5;
-			j0 = std::floor(y);
+			j0 = static_cast<int>(y);
 			j1 = j0 + 1;
 
 			s1 = x - i0;
@@ -183,10 +184,10 @@ void FluidSim::advect(int b, std::vector<std::vector<float>>& d, std::vector<std
 			t0 = 1 - t1;
 
 			//std::round is extremely slow for some reason, this should be nearly equivalent within the needed accuracy
-			int i0i = std::floor(i0+0.5);
-			int i1i = std::floor(i1+0.5);
-			int j0i = std::floor(j0+0.5);
-			int j1i = std::floor(j1+0.5);
+			int i0i = static_cast<int>(i0+0.5);
+			int i1i = static_cast<int>(i1+0.5);
+			int j0i = static_cast<int>(j0+0.5);
+			int j1i = static_cast<int>(j1+0.5);
 			//This is by far the slowest line in the entire program
 			d[i][j] = s0 * (t0 * prevD[i0i][j0i] + t1 * prevD[i0i][j1i]) + s1 * (t0 * prevD[i1i][j0i] + t1 * prevD[i1i][j1i]);
 			
