@@ -151,24 +151,36 @@ void FluidSim::project(std::vector<std::vector<float>>& velocityX, std::vector<s
 	this->setBoundary(1, velocityX);
 	this->setBoundary(2, velocityY);
 }
-void FluidSim::advect(int b, std::vector<std::vector<float>>& d, std::vector<std::vector<float>>& prevD, std::vector<std::vector<float>>& velocityX, std::vector<std::vector<float>>& velocitY, float dt) {
-	float i0=0, i1=0, j0=0, j1=0;
+
+// This function performs advection of a fluid property (represented by the density field 'd') 
+// using the velocity field (represented by 'velocityX' and 'velocityY') over a timestep 'dt'
+// for a given boundary 'b'. It uses the previous state of the density field ('prevD') as input.
+void FluidSim::advect(int b, std::vector<std::vector<float>>& d, std::vector<std::vector<float>>& prevD, std::vector<std::vector<float>>& velocityX, std::vector<std::vector<float>>& velocityY, float dt) {
+
+	// Initialize variables used for spatial interpolation
+	float i0 = 0, i1 = 0, j0 = 0, j1 = 0;
 	float dtx = dt * (m_size - 2);
 	float dty = dt * (m_size - 2);
 
-	float s0=0, s1=0, t0=0, t1=0;
-	float tmp1=0, tmp2=0, x=0, y=0;
+	float s0 = 0, s1 = 0, t0 = 0, t1 = 0;
+	float tmp1 = 0, tmp2 = 0, x = 0, y = 0;
 
+	// Compute the size of the fluid grid
 	float Nfloat = m_size - 2;
+
+	// Iterate over each grid cell and advect its fluid property
 	static int s = m_size - 1;
 	for (unsigned int i = 1; i < s; i++)
 	{
 		for (unsigned int j = 1; j < m_size - 1; j++)
 		{
+			// Compute the position at which to interpolate the density field
 			tmp1 = dtx * velocityX[i][j];
-			tmp2 = dty * velocitY[i][j];
+			tmp2 = dty * velocityY[i][j];
 			x = i - tmp1;
 			y = j - tmp2;
+
+			// Clamp the position within the fluid grid
 			if (x < 0.5)x = 0.5;
 			if (x > Nfloat + 0.5)x = Nfloat + 0.5;
 			i0 = static_cast<int>(x);
@@ -178,21 +190,23 @@ void FluidSim::advect(int b, std::vector<std::vector<float>>& d, std::vector<std
 			j0 = static_cast<int>(y);
 			j1 = j0 + 1;
 
+			// Compute the interpolation coefficients
 			s1 = x - i0;
 			s0 = 1 - s1;
 			t1 = y - j0;
 			t0 = 1 - t1;
 
-			//std::round is extremely slow for some reason, this should be nearly equivalent within the needed accuracy
-			int i0i = static_cast<int>(i0+0.5);
-			int i1i = static_cast<int>(i1+0.5);
-			int j0i = static_cast<int>(j0+0.5);
-			int j1i = static_cast<int>(j1+0.5);
-			//This is by far the slowest line in the entire program
+			// Perform bilinear interpolation of the density field at the interpolated position
+			// and store the result in the current density field
+			int i0i = static_cast<int>(i0 + 0.5);
+			int i1i = static_cast<int>(i1 + 0.5);
+			int j0i = static_cast<int>(j0 + 0.5);
+			int j1i = static_cast<int>(j1 + 0.5);
 			d[i][j] = s0 * (t0 * prevD[i0i][j0i] + t1 * prevD[i0i][j1i]) + s1 * (t0 * prevD[i1i][j0i] + t1 * prevD[i1i][j1i]);
-			
 		}
 	}
+
+	// Apply the specified boundary conditions to the current density field
 	this->setBoundary(b, d);
 }
 
