@@ -1,6 +1,7 @@
 ﻿# CMakeList.txt : CMake project for Fluidsim, include source and define
 # project specific logic here.
 #
+SET(USEAVX true)
 cmake_minimum_required (VERSION 3.8)
 project ("SimulationHub")
 
@@ -20,5 +21,11 @@ TARGET_LINK_LIBRARIES(simulationHub LINK_PUBLIC BASE FLUIDSIM)
 
 find_package(SFML COMPONENTS system window graphics CONFIG REQUIRED)
 target_link_libraries(simulationHub PRIVATE sfml-system sfml-network sfml-graphics sfml-window)
-
-# TODO: Add tests and install targets if needed.
+if(USEAVX)
+	message("AVX2 will be used, linking in executable")
+	SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /arch:AVX2")
+	SET_TARGET_PROPERTIES(simulationHub PROPERTIES COMPILE_FLAGS "/arch:AVX2")
+	target_compile_definitions(simulationHub  PUBLIC AVX)
+else()  
+	message("AVX2 not used")
+endif()

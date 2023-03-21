@@ -19,15 +19,22 @@ namespace SIM {
 		std::vector<std::vector<SIM::colour>>& getCurrentState() final;
 		void handleClick(bool isLeftClick, int xpos, int ypos) final;
 	private:
-		void addDensity(int x, int y, float amount);
-		void addVelocity(int x, int y, float amount_x, float amount_y);
+		void addDensity(const int x, const int y, const float amount);
+		void addVelocity(const int x, const int y, const float amount_x, const float amount_y);
 		void applySources();
 
-		void setBoundary(int b, std::vector<std::vector<float>>& array);
-		void linSolve(int b, std::vector<std::vector<float>>& array, std::vector<std::vector<float>>& prevArray, float a, float c);
-		void diffuse(int b, std::vector<std::vector<float>>& array, std::vector<std::vector<float>>& prevArray, float diff, float dt);
+		void setBoundary(const int b, std::vector<std::vector<float>>& array);
+		void linSolve(const int b, std::vector<std::vector<float>>& array, const std::vector<std::vector<float>>& prevArray, const float a, const float c);
+		void diffuse(const int b, std::vector<std::vector<float>>& array, const std::vector<std::vector<float>>& prevArray, const float diff, const float dt);
 		void project(std::vector<std::vector<float>>& velocityX, std::vector<std::vector<float>>& velocityY, std::vector<std::vector<float>>& clearVector, std::vector<std::vector<float>>& targetVectory);
-		void advect(int b, std::vector<std::vector<float>>& d, std::vector<std::vector<float>>& prevD, std::vector<std::vector<float>>& velocityX, std::vector<std::vector<float>>& velocitY, float dt);
+		void advect(const int b, std::vector<std::vector<float>>& d, const std::vector<std::vector<float>>& prevD, const std::vector<std::vector<float>>& velocityX, const std::vector<std::vector<float>>& velocityY, const float dt);
+
+
+		//Functions that use avx2 functions for acceleration
+#ifdef AVX
+		void linSolveAvx(const int b, std::vector<std::vector<float>>& array, const std::vector<std::vector<float>>& prevArray, const float a, const float c);
+		void advectAvx(const int b, std::vector<std::vector<float>>& d, const std::vector<std::vector<float>>& prevD, const std::vector<std::vector<float>>& velocityX, const std::vector<std::vector<float>>& velocityY, const float dt);
+#endif
 
 
 		typedef std::vector<std::vector<float>> grid;

@@ -7,4 +7,4 @@ set(CMAKE_CXX_STANDARD 20)
 project ("SimulationHub")
 
 # Include sub-projects.
-add_subdirectory ("simulations")
+add_subdirectory ("simulations") 
