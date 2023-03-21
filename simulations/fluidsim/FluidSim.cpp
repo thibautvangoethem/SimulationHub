@@ -104,31 +104,6 @@ void FluidSim::setBoundary(const int b, std::vector<float>& array) {
 	array[(m_size - 1)*m_size + (m_size - 1)] = 0.5 * (array[(m_size - 2)*m_size + (m_size - 1)] + array[(m_size - 1)*m_size + (m_size - 2)]);
 }
 
-/*
- * float cRecip = 1.0 / c;
-	__m256 a_vec = _mm256_set1_ps(a); // Create a vector with all elements set to 'a'
-	__m256 cRecip_vec = _mm256_set1_ps(cRecip); // Create a vector with all elements set to 'cRecip'
-	for (unsigned int i = 1; i < m_size - 1; i++)
-	{
-		for (unsigned int j = 1; j < m_size - 1; j += 8) // Process 8 elements at a time
-		{
-			// Load 8 elements from the arrays into 256-bit vectors
-			__m256 prevArray_vec = _mm256_loadu_ps(&prevArray[(i)*m_size + (j)]);
-			__m256 array_up_vec = _mm256_loadu_ps(&array[(i - 1)*m_size + (j)]);
-			__m256 array_down_vec = _mm256_loadu_ps(&array[(i + 1)*m_size + (j)]);
-			__m256 array_left_vec = _mm256_loadu_ps(&array[(i)*m_size + (j - 1)]);
-			__m256 array_right_vec = _mm256_loadu_ps(&array[(i)*m_size + (j + 1)]);
-			
-			// Add the 5 vectors together and multiply by 'a_vec'
-			__m256 sum_vec = _mm256_add_ps(_mm256_add_ps(_mm256_add_ps(_mm256_add_ps(prevArray_vec, array_up_vec), array_down_vec), array_left_vec), array_right_vec);
-			__m256 prod_vec = _mm256_mul_ps(a_vec, sum_vec);
-			
-			// Multiply by 'cRecip_vec' and store the result back into the array
-			__m256 result_vec = _mm256_mul_ps(cRecip_vec, prod_vec);
-			_mm256_storeu_ps(&array[(i)*m_size + (j)], result_vec);
-		}
-	}
- */
 #ifdef AVX
 void FluidSim::linSolveAvx(const int b, std::vector<float>& array, const std::vector<float>& prevArray, const float a, const float c)
 {
@@ -278,14 +253,15 @@ void FluidSim::diffuse(const int b, std::vector<float>& array, const std::vector
 
 }
 void FluidSim::project(std::vector<float>& velocityX, std::vector<float>& velocityY, std::vector<float>& clearVector, std::vector<float>& targetVectory) {
+	
 	for (unsigned int j = 1; j < m_size - 1; j++)
 	{
 		for (unsigned int i = 1; i < m_size - 1; i++)
 		{
 			targetVectory[(j)*m_size + (i)] = - 0.5 * (velocityX[(j + 1)*m_size + (i)] - velocityX[(j - 1)*m_size + (i)] + velocityY[(j)*m_size + (i + 1)] - velocityY[(j)*m_size + (i - 1)]) / m_size;
-			clearVector[(j)*m_size + (i)] = 0;
 		}
 	}
+	std::fill(clearVector.begin(), clearVector.end(), 0);
 	this->setBoundary(0, targetVectory);
 	this->setBoundary(0, clearVector);
 	this->linSolve(0, clearVector, targetVectory, 1, 6);
@@ -377,8 +353,8 @@ void FluidSim::handleClick(bool isLeftClick, int xpos, int ypos)
 			m_storedClick = std::make_unique<std::pair<int, int>>(xpos, ypos);
 		}else
 		{
-			float xvel= -(m_storedClick->first- xpos) / (m_size/ 10);
-			float yvel = -(m_storedClick->second - ypos) / (m_size / 10);
+			float xvel= static_cast<float>(- (m_storedClick->first - xpos)) / (m_size / 10);
+			float yvel = static_cast<float> (- (m_storedClick->second - ypos)) / (m_size / 10);
 			m_flows.emplace_back(std::make_pair(m_storedClick->first, m_storedClick->second), std::make_pair(xvel,yvel));
 			
 			m_storedClick = nullptr;
