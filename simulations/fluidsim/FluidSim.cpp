@@ -132,14 +132,6 @@ void FluidSim::linSolveAvx(const int b, std::vector<float>& array, const std::ve
 
 void FluidSim::advectAvx(const int b, std::vector<float>& d, const std::vector<float>& prevD, const std::vector<float>& velocityX, const std::vector<float>& velocityY, const float dt)
 {
-	std::vector<int> resulti0i(8);
-	std::vector<int> resulti1i(8);
-	std::vector<int> resultj0i(8);
-	std::vector<int> resultj1i(8);
-	std::vector<float> prevDFirst(8, 0);
-	std::vector<float> prevDSecond(8, 0);
-	std::vector<float> prevDThird(8, 0);
-	std::vector<float> prevDFourth(8, 0);
 	// Initialize variables used for spatial interpolation
 	const auto dtx_vec = _mm256_set1_ps(dt * (m_size - 2));
 	const auto dty_vec = _mm256_set1_ps(dt * (m_size - 2));
