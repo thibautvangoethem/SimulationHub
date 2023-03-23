@@ -7,11 +7,11 @@
 #include <iostream>
 
 void makeImageFromArray(std::vector<std::vector<SIM::colour >>& pixelArray,int size, sf::Image &simImage, int windowSize) {
-    int scale = windowSize / size;
+    const int scale = windowSize / size;
     for (unsigned int i = 0; i < size - 1; ++i) {
         for (unsigned int j = 0; j < size - 1; ++j) {
-            auto& pix = pixelArray[j][i];
-            auto pixcol = sf::Color{ pix.r,pix.g,pix.b };
+            const auto& pix = pixelArray[j][i];
+            const auto pixcol = sf::Color{ pix.r,pix.g,pix.b };
             for (int is = 0; is < scale; ++is)
             {
             	for (int js = 0; js < scale; ++js)
