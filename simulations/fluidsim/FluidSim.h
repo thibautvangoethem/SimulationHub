@@ -30,10 +30,11 @@ namespace SIM {
 		void advect(const int b, std::vector<float>& d, const std::vector<float>& prevD, const std::vector<float>& velocityX, const std::vector<float>& velocityY, const float dt);
 
 
-		//Functions that use avx2 functions for acceleration
+		//Functions that use avx2 for acceleration
 #ifdef AVX
 		void linSolveAvx(const int b, std::vector<float>& array, const std::vector<float>& prevArray, const float a, const float c);
 		void advectAvx(const int b, std::vector<float>& d, const std::vector<float>& prevD, const std::vector<float>& velocityX, const std::vector<float>& velocityY, const float dt);
+		void projectAvx(std::vector<float>& velocityX, std::vector<float>& velocityY, std::vector<float>& clearVector, std::vector<float>& targetVectory);
 #endif
 
 
