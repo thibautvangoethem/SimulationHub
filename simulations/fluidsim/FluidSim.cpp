@@ -54,8 +54,12 @@ std::vector<std::vector<SIM::colour>>& FluidSim::getCurrentState() {
 			auto valCasted = (uint8_t)(val);
 			//TODO asses the performance impact of this calculation
 			float combinedSpeedVal =1-sqrt(m_velY[(i)*m_size + (j)]* m_velY[(i)*m_size + (j)] + m_velX[(i)*m_size + (j)]* m_velX[(i)*m_size + (j)]);
+			std::clamp(valCasted, (uint8_t)0, (uint8_t)255);
+			auto g = (uint8_t)(valCasted * combinedSpeedVal);
+			std::clamp(g, (uint8_t)0, (uint8_t)255);
 			
-			m_currentState[(j)][(i)] = colour{ valCasted,(uint8_t)(valCasted* combinedSpeedVal),(uint8_t)(valCasted* combinedSpeedVal) };
+			
+			m_currentState[(j)][(i)] = colour{ valCasted,g,g };
 		}
 	}
 	if(m_storedClick)
@@ -358,41 +362,22 @@ void FluidSim::advectAvx(const int b, std::vector<float>& d, const std::vector<f
 
 void FluidSim::projectAvx(std::vector<float>& velocityX, std::vector<float>& velocityY, std::vector<float>& clearVector, std::vector<float>& targetVectory)
 {
-	const auto half_vecps = _mm256_set1_ps(-0.5f);
-	const auto size_vecps = _mm256_set1_ps(m_size);
-	const auto size_vec = _mm256_set1_epi32(m_size);
-	const auto one_vec = _mm256_set1_epi32(1);
-	const auto indexAdditor_vec = _mm256_setr_epi32(0, 1, 2, 3, 4, 5, 6, 7);
+	/*const auto half_vecps = _mm256_set1_ps(-0.5f);
+	const auto size_vecps = _mm256_set1_ps(m_size);*/
 	for (unsigned int j = 1; j < m_size - 1; j++)
 	{
-		auto j_vec = _mm256_set1_epi32(j);
-		auto jmul_vec = _mm256_mul_epi32(j_vec, size_vec);
-		auto jplus_vec = _mm256_mul_epi32(_mm256_add_epi32(j_vec,one_vec), size_vec);
-		auto jminus_vec = _mm256_mul_epi32(_mm256_sub_epi32(j_vec, one_vec), size_vec);
-		for (unsigned int i = 1; i < m_size - 1; i+=8)
+		for (unsigned int i = 1; i < m_size - 1; i+=1)
 		{
-			auto i_vec = _mm256_set1_epi32(i);
-
-			auto index_vec = _mm256_add_epi32(i_vec,indexAdditor_vec);
-			auto iplus_vec = _mm256_add_epi32(index_vec, one_vec);
-			auto iminus_vec = _mm256_sub_epi32(index_vec, one_vec);
-
-			auto indexOne_vec = _mm256_add_epi32(jplus_vec, index_vec);
-			auto first_vec = _mm256_i32gather_ps(&velocityX[0], indexOne_vec, 4);
-
-			auto indexTwo_vec = _mm256_add_epi32(jminus_vec, index_vec);
-			auto second_vec = _mm256_i32gather_ps(&velocityX[0], indexTwo_vec, 4);
-
-			auto indexThree_vec = _mm256_add_epi32(jmul_vec, iplus_vec);
-			auto third_vec = _mm256_i32gather_ps(&velocityY[0], indexThree_vec, 4);
-
-			auto indexFour_vec = _mm256_add_epi32(jmul_vec, iminus_vec);
-			auto four_vec = _mm256_i32gather_ps(&velocityY[0], indexFour_vec, 4);
-
-			auto result_vec = _mm256_div_ps(_mm256_mul_ps(half_vecps,_mm256_add_ps(_mm256_sub_ps(first_vec, second_vec), _mm256_sub_ps(third_vec, four_vec))), size_vecps);
-
-			//_mm256_storeu_ps(&targetVectory[(j)*m_size + (i)], result_vec);
 			targetVectory[(j)*m_size + (i)] = -0.5 * (velocityX[(j + 1) * m_size + (i)] - velocityX[(j - 1) * m_size + (i)] + velocityY[(j)*m_size + (i + 1)] - velocityY[(j)*m_size + (i - 1)]) / m_size;
+			//you cant use avx here, as each update is reliant on the surrounding pixels, so doing it in groups of 8 breaks it :(
+			// Idea: calculate it 8 at a time, but never 2 adjacent ones in the same calculation?
+			// Not needed that much as most time is spent elsewhere
+			/*auto first_vec = _mm256_loadu_ps(&velocityX[(j + 1) * m_size + (i)]);
+			auto second_vec = _mm256_loadu_ps(&velocityX[(j - 1) * m_size + (i)]);
+			auto third_vec = _mm256_loadu_ps(&velocityY[(j)*m_size + (i + 1)]);
+			auto four_vec = _mm256_loadu_ps(&velocityY[(j)*m_size + (i - 1)]);
+			auto result_vec = _mm256_div_ps(_mm256_mul_ps(half_vecps, _mm256_add_ps(_mm256_sub_ps(first_vec, second_vec), _mm256_sub_ps(third_vec, four_vec))), size_vecps);
+			_mm256_storeu_ps(&targetVectory[(j)*m_size + (i)], result_vec);*/
 		}
 	}
 	std::fill(clearVector.begin(), clearVector.end(), 0);
@@ -400,12 +385,21 @@ void FluidSim::projectAvx(std::vector<float>& velocityX, std::vector<float>& vel
 	this->setBoundary(0, clearVector);
 	this->linSolve(0, clearVector, targetVectory, 1, 6);
 
-	for (unsigned int i = 1; i < m_size - 1; i++)
-	{
-		for (unsigned int j = 1; j < m_size - 1; j+=8)
-		{
-			velocityX[(i)*m_size + (j)] = velocityX[(i)*m_size + (j)] - 0.5 * (clearVector[(i + 1) * m_size + (j)] - clearVector[(i - 1) * m_size + (j)]) * m_size;
-			velocityY[(i)*m_size + (j)] = velocityY[(i)*m_size + (j)] - 0.5 * (clearVector[(i)*m_size + (j + 1)] - clearVector[(i)*m_size + (j - 1)]) * m_size;
+	for (unsigned int i = 1; i < m_size - 1; i++) {
+		for (unsigned int j = 1; j < m_size - 1; j += 8) {
+			auto one_vec = _mm256_loadu_ps(&clearVector[(i + 1) * m_size + (j)]);
+			auto two_vec = _mm256_loadu_ps(&clearVector[(i - 1) * m_size + (j)]);
+			auto three_vec = _mm256_loadu_ps(&clearVector[(i)*m_size + (j + 1)]);
+			auto four_vec = _mm256_loadu_ps(&clearVector[(i)*m_size + (j - 1)]);
+			auto velX_vec = _mm256_loadu_ps(&velocityX[(i)*m_size + (j)]);
+			auto vely_vec = _mm256_loadu_ps(&velocityY[(i)*m_size + (j)]);
+			auto factor_vec= _mm256_set1_ps(0.5 * m_size);
+
+			auto resultOne_vec= _mm256_sub_ps(velX_vec, _mm256_mul_ps(_mm256_sub_ps(one_vec, two_vec), factor_vec));
+			auto resultTwo_vec = _mm256_sub_ps(vely_vec, _mm256_mul_ps(_mm256_sub_ps(three_vec, four_vec), factor_vec));
+
+			_mm256_storeu_ps(&velocityX[(i)*m_size + (j)], resultOne_vec);
+			_mm256_storeu_ps(&velocityY[(i)*m_size + (j)], resultTwo_vec);
 		}
 	}
 }

@@ -35,7 +35,7 @@ int main() {
     sf::Clock gameclock;
     sf::RenderWindow window(sf::VideoMode(windowSize, windowSize), "simulations");
     auto settings = std::make_unique<SIM::SimulationSettings>(size, false);
-    settings->setDiffusion(0.0000001);
+    settings->setDiffusion(0.000001);
     settings->setViscosity(0.000001);
     SIM::FluidSim sim{ std::move(settings) };
 
@@ -60,7 +60,7 @@ int main() {
                 break;
             }
         }
-        if (gameclock.getElapsedTime().asSeconds() > 0.013) {
+        //if (gameclock.getElapsedTime().asSeconds() > 0.013) {
             //sim.advance(gameclock.getElapsedTime().asSeconds());
             
             sim.advance(0.013);
@@ -75,7 +75,7 @@ int main() {
             std::cout << gameclock.getElapsedTime().asSeconds() << std::endl;
             gameclock.restart();
             window.display();
-        }
+        //}
 
     }
 
