@@ -14,7 +14,7 @@
 
 using namespace FSIM;
 
-FireSim::FireSim(std::unique_ptr<SIM::SimulationSettings> settings) : SIM::Simulation(std::move(settings))
+FireSim::FireSim(std::shared_ptr<SIM::SimulationSettings> settings) : SIM::Simulation(std::move(settings))
 {
 
 	m_currentState = std::vector<std::vector<SIM::colour> >(

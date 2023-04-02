@@ -5,7 +5,7 @@
 #include <immintrin.h>
 using namespace SIM;
 
-FluidSim::FluidSim(std::unique_ptr<SIM::SimulationSettings> settings) : Simulation(std::move(settings)) {
+FluidSim::FluidSim(std::shared_ptr<SIM::SimulationSettings> settings) : Simulation(std::move(settings)) {
 	m_size = this->m_settings->getSize();
 	m_s = std::vector<float>(m_size * m_size, 0);
 	m_density = std::vector<float>(m_size * m_size, 0);

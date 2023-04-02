@@ -15,11 +15,13 @@ namespace SIM {
 
 	class Simulation {
 	public:
-		Simulation(std::unique_ptr<SimulationSettings> settings) :m_settings{std::move(settings)} {}
+		Simulation(std::shared_ptr<SimulationSettings> settings) :m_settings{std::move(settings)} {}
 		virtual void advance(double timestep) = 0;
 		virtual std::vector<std::vector<colour>>&  getCurrentState()=0;
 		virtual void handleClick(bool isLeftClick,int xpos,int ypos)=0;
+
+		std::shared_ptr<SimulationSettings> getSettings() const { return m_settings; };
 	protected:
-		const std::unique_ptr<SimulationSettings> m_settings;
+		const std::shared_ptr<SimulationSettings> m_settings;
 	};
 }

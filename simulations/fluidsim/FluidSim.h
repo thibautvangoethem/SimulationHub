@@ -14,7 +14,7 @@ namespace SIM {
 	class FluidSim :public Simulation {
 		static constexpr SIM::colour EMPTY = SIM::colour{ 0,0,0 };
 	public:
-		FluidSim(std::unique_ptr<SIM::SimulationSettings> settings);
+		FluidSim(std::shared_ptr<SIM::SimulationSettings> settings);
 		void advance(double timestep) final;
 		std::vector<std::vector<SIM::colour>>& getCurrentState() final;
 		void handleClick(bool isLeftClick, int xpos, int ypos) final;
