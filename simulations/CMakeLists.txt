@@ -10,6 +10,8 @@ add_subdirectory ("baseinterface")
 add_subdirectory ("firesim")
 
 add_subdirectory ("fluidsim")
+
+add_subdirectory ("raytracer")
 # Add source to this project's executable.
 SET(SRC "main.cpp")
 
@@ -18,6 +20,7 @@ add_executable (simulationHub ${SRC})
 
 TARGET_LINK_LIBRARIES(simulationHub LINK_PUBLIC BASE FIRESIM)
 TARGET_LINK_LIBRARIES(simulationHub LINK_PUBLIC BASE FLUIDSIM)
+TARGET_LINK_LIBRARIES(simulationHub LINK_PUBLIC BASE RAYTRACER)
 
 find_package(SFML COMPONENTS system window graphics CONFIG REQUIRED)
 target_link_libraries(simulationHub PRIVATE sfml-system sfml-network sfml-graphics sfml-window)

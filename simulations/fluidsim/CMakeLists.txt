@@ -13,7 +13,6 @@ SET(SRC
      )
 
 
-#Create a library named GameLogic containing all files of SRC that can be linked staticly
 ADD_LIBRARY(${LIB}  ${SRC})
 
 TARGET_INCLUDE_DIRECTORIES(${LIB} PUBLIC include)

@@ -9,11 +9,12 @@ namespace FSIM {
 	class FireSim: public SIM::Simulation {
 		static constexpr SIM::colour EMPTY = SIM::colour{ 0,0,0 };
 	public:
+		/*#### Sim::Simulation functions ####*/
 		FireSim(std::shared_ptr<SIM::SimulationSettings> settings);
-		void advance(double timestep) final;
+		void advance(const double timestep) final;
 		std::vector<std::vector<SIM::colour>>& getCurrentState() final;
 		//not used here
-		void handleClick(bool isLeftClick, int xpos, int ypos) final{};
+		void handleClick(const bool isLeftClick,const int xpos,const int ypos) final{};
 	private:
 		
 		void advancePixel(int x, int y);

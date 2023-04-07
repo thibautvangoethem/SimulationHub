@@ -16,9 +16,9 @@ namespace SIM {
 	class Simulation {
 	public:
 		Simulation(std::shared_ptr<SimulationSettings> settings) :m_settings{std::move(settings)} {}
-		virtual void advance(double timestep) = 0;
+		virtual void advance(const double timestep) = 0;
 		virtual std::vector<std::vector<colour>>&  getCurrentState()=0;
-		virtual void handleClick(bool isLeftClick,int xpos,int ypos)=0;
+		virtual void handleClick(const bool isLeftClick,const int xpos,const int ypos)=0;
 
 		std::shared_ptr<SimulationSettings> getSettings() const { return m_settings; };
 	protected:

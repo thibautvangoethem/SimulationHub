@@ -66,7 +66,7 @@ FireSim::FireSim(std::shared_ptr<SIM::SimulationSettings> settings) : SIM::Simul
 	m_currentStateNonMapped.push_back(std::vector<int>(this->m_settings->getSize(), m_colorbuffer.size()-1));
 }
 
-void FireSim::advance(double timestep) {
+void FireSim::advance(const double timestep) {
 	for (int i = 0; i < m_settings->getSize(); ++i) {
 		for (int j = 0; j < m_settings->getSize()+1; ++j) {
 			advancePixel(i, j);

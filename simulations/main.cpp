@@ -1,6 +1,7 @@
 #include "baseinterface/Simulation.h"
 #include "firesim/FireSim.h"
 #include "fluidsim/FluidSim.h"
+#include "raytracer/RayTracer.h"
 #include "baseinterface/SimulationSettings.h"
 
 #include <chrono>
@@ -12,9 +13,9 @@ void makeImageFromArray(std::vector<std::vector<SIM::colour>>& pixelArray, int s
 	int windowSize)
 {
 	const int scale = windowSize / size;
-	for (unsigned int i = 0; i < size - 1; ++i)
+	for (unsigned int i = 0; i < size; ++i)
 	{
-		for (unsigned int j = 0; j < size - 1; ++j)
+		for (unsigned int j = 0; j < size; ++j)
 		{
 			const auto& pix = pixelArray[j][i];
 			const auto pixcol = sf::Color{ pix.r, pix.g, pix.b };
@@ -31,6 +32,9 @@ void makeImageFromArray(std::vector<std::vector<SIM::colour>>& pixelArray, int s
 
 void runSimulation(sf::RenderWindow& window, int scale, int size, int windowSize, std::unique_ptr<SIM::Simulation> sim)
 {
+	auto currentTimeCount = 0.0;
+	auto frameCounter = 0;
+
 	bool timeBased = sim->getSettings()->isTimeBased();
 	bool unlocked = sim->getSettings()->isUnlockedTime();
 	double tickrate = sim->getSettings()->getConstantTickrate();
@@ -39,7 +43,7 @@ void runSimulation(sf::RenderWindow& window, int scale, int size, int windowSize
 	sf::Clock gameclock;
 	while (window.isOpen())
 	{
-		if (unlocked || gameclock.getElapsedTime().asSeconds() > tickrate) {
+		if (unlocked || gameclock.getElapsedTime().asSeconds() > 0.13) {
 			sf::Event event;
 			while (window.pollEvent(event))
 			{
@@ -73,7 +77,15 @@ void runSimulation(sf::RenderWindow& window, int scale, int size, int windowSize
 			sf::Sprite sprite;
 			sprite.setTexture(texture, true);
 			window.draw(sprite);
-			std::cout << gameclock.getElapsedTime().asSeconds() << std::endl;
+			frameCounter += 1;
+			currentTimeCount += gameclock.getElapsedTime().asSeconds();
+			if(frameCounter==500)
+			{
+				std::cout <<"500 frame average: " << currentTimeCount/500 <<"s"<< std::endl;
+				currentTimeCount = 0;
+				frameCounter = 0;
+			}
+			
 			//Note: placing the restart here means that with a tickrate of 0.5s it will actually be a 0.5+simulation time refreshrate. however the tickrate of the simulation will still remain the chosen tickrate
 			gameclock.restart();
 			window.display();
@@ -86,13 +98,13 @@ int main()
 {
 	//Dont feel like dealing with adding resources to an executable atm
 	std::string fontLocation = R"(C:\Users\thiba\source\repos\FluidSim\arial\arial.ttf)";
-	int size = 512;
-	int scale = 2;
+	int size = 254;
+	int scale = 4;
 	int windowSize = size * scale;
 	sf::RenderWindow window(sf::VideoMode(windowSize, windowSize), "simulations");
 	auto settings = std::make_shared<SIM::SimulationSettings>(size, false);
-	settings->setConstantTickrate(0.05);
-	settings->setunlockedTime(false);
+	settings->setConstantTickrate(0.01);
+	settings->setunlockedTime(true);
 	settings->setDiffusion(0.000001);
 	settings->setViscosity(0.000001);
 
@@ -106,6 +118,10 @@ int main()
 	std::function<std::unique_ptr<SIM::Simulation>()> func2 = std::function(
 		[&]() { return std::make_unique<SIM::FluidSim>(SIM::FluidSim{ settings }); });
 	choices.emplace_back(func2);
+	std::function<std::unique_ptr<SIM::Simulation>()> func3 = std::function(
+		[&]() { return std::make_unique<SIM::RayTracer>(SIM::RayTracer{ settings }); });
+	choices.emplace_back(func3);
+
 	sf::Font font;
 	font.loadFromFile(fontLocation);
 	int split = windowSize / 4;
