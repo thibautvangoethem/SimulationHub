@@ -10,10 +10,13 @@ set(LIB RAYTRACER)
 SET(SRC
     "RayTracer.h"
     "RayTracer.cpp"
-    "vec3.h"
-    "vec3.cpp"
-    "vec3Util.h"
-     )
+    "utility/vec3.h"
+    "utility/vec3.cpp"
+    "utility/vec3Util.h"
+    "utility/ray.h" 
+    "hittableshapes/HittableShape.h"
+    "hittableshapes/Sphere.h" "hittableshapes/Sphere.cpp" "hittableshapes/HittableList.h" "hittableshapes/HittableList.cpp"
+"Camera.h" "Camera.cpp")
 
 
 ADD_LIBRARY(${LIB}  ${SRC})

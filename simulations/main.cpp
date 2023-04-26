@@ -1,43 +1,47 @@
-#include "baseinterface/Simulation.h"
-#include "firesim/FireSim.h"
-#include "fluidsim/FluidSim.h"
-#include "raytracer/RayTracer.h"
-#include "baseinterface/SimulationSettings.h"
+#include "core/baseinterface/Simulation.h"
+#include "core/firesim/FireSim.h"
+#include "core/fluidsim/FluidSim.h"
+#include "core/raytracer/RayTracer.h"
+#include "core/baseinterface/SimulationSettings.h"
+#include "sfmlFrontend/SFMLSimInterface.h"
+#include "sfmlFrontend/FireSimImpl.h"
+#include "sfmlFrontend/FluidSimImpl.h"
+#include "sfmlFrontend/RayTracerImpl.h"
 
 #include <chrono>
 #include <functional>
 #include <SFML/Graphics.hpp>
 #include <iostream>
 
-void makeImageFromArray(std::vector<std::vector<SIM::colour>>& pixelArray, int size, sf::Image& simImage,
-	int windowSize)
-{
-	const int scale = windowSize / size;
-	for (unsigned int i = 0; i < size; ++i)
-	{
-		for (unsigned int j = 0; j < size; ++j)
-		{
-			const auto& pix = pixelArray[j][i];
-			const auto pixcol = sf::Color{ pix.r, pix.g, pix.b };
-			for (int is = 0; is < scale; ++is)
-			{
-				for (int js = 0; js < scale; ++js)
-				{
-					simImage.setPixel(i * scale + is, j * scale + js, pixcol);
-				}
-			}
-		}
-	}
-}
+//void makeImageFromArray(std::vector<std::vector<SIM::colour>>& pixelArray, int size, sf::Image& simImage,
+//	int windowSize)
+//{
+//	const int scale = windowSize / size;
+//	for (unsigned int i = 0; i < size; ++i)
+//	{
+//		for (unsigned int j = 0; j < size; ++j)
+//		{
+//			const auto& pix = pixelArray[j][i];
+//			const auto pixcol = sf::Color{ pix.r, pix.g, pix.b };
+//			for (int is = 0; is < scale; ++is)
+//			{
+//				for (int js = 0; js < scale; ++js)
+//				{
+//					simImage.setPixel(i * scale + is, j * scale + js, pixcol);
+//				}
+//			}
+//		}
+//	}
+//}
 
-void runSimulation(sf::RenderWindow& window, int scale, int size, int windowSize, std::unique_ptr<SIM::Simulation> sim)
+void runSimulation(sf::RenderWindow& window, int scale, int size, int windowSize, std::unique_ptr<FSIM::SFMLSimInterface> sim)
 {
 	auto currentTimeCount = 0.0;
 	auto frameCounter = 0;
 
-	bool timeBased = sim->getSettings()->isTimeBased();
-	bool unlocked = sim->getSettings()->isUnlockedTime();
-	double tickrate = sim->getSettings()->getConstantTickrate();
+	bool timeBased = sim->getInternalSettings()->isTimeBased();
+	bool unlocked = sim->getInternalSettings()->isUnlockedTime();
+	double tickrate = sim->getInternalSettings()->getConstantTickrate();
 	sf::Image simImage;
 	simImage.create(windowSize, windowSize);
 	sf::Clock gameclock;
@@ -55,11 +59,11 @@ void runSimulation(sf::RenderWindow& window, int scale, int size, int windowSize
 				case sf::Event::MouseButtonPressed:
 					if (event.mouseButton.button == sf::Mouse::Right)
 					{
-						sim->handleClick(false, event.mouseButton.x / scale, event.mouseButton.y / scale);
+						sim->click(false, event.mouseButton.x / scale, event.mouseButton.y / scale);
 					}
 					else
 					{
-						sim->handleClick(true, event.mouseButton.x / scale, event.mouseButton.y / scale);
+						sim->click(true, event.mouseButton.x / scale, event.mouseButton.y / scale);
 					}
 					break;
 				case sf::Event::KeyPressed:
@@ -68,10 +72,10 @@ void runSimulation(sf::RenderWindow& window, int scale, int size, int windowSize
 					break;
 				}
 			}
-			sim->advance(timeBased ? gameclock.getElapsedTime().asSeconds() : tickrate);
+			sim->advanceSim(timeBased ? gameclock.getElapsedTime().asSeconds() : tickrate);
+			sim->updateImage(simImage);
 			window.clear();
-
-			makeImageFromArray(sim->getCurrentState(), size, simImage, windowSize);
+			//makeImageFromArray(sim->getCurrentState(), size, simImage, windowSize);
 			sf::Texture texture;
 			texture.loadFromImage(simImage);
 			sf::Sprite sprite;
@@ -98,8 +102,8 @@ int main()
 {
 	//Dont feel like dealing with adding resources to an executable atm
 	std::string fontLocation = R"(C:\Users\thiba\source\repos\FluidSim\arial\arial.ttf)";
-	int size = 254;
-	int scale = 4;
+	int size = 512;
+	int scale = 2;
 	int windowSize = size * scale;
 	sf::RenderWindow window(sf::VideoMode(windowSize, windowSize), "simulations");
 	auto settings = std::make_shared<SIM::SimulationSettings>(size, false);
@@ -109,17 +113,17 @@ int main()
 	settings->setViscosity(0.000001);
 
 
-	std::vector<std::function<std::unique_ptr<SIM::Simulation>()>> choices;
+	std::vector<std::function<std::unique_ptr<FSIM::SFMLSimInterface>()>> choices;
 
 	//some might say there are better ways to do this, I agree with them. Luckily this will not be a long term project right?(written 2023/04/02).
-	std::function<std::unique_ptr<SIM::Simulation>()> func1 = std::function(
-		[&]() { return std::make_unique<FSIM::FireSim>(FSIM::FireSim{ settings }); });
+	std::function<std::unique_ptr<FSIM::SFMLSimInterface>()> func1 = std::function(
+		[&]() { return std::make_unique<FSIM::FireSimImpl>(FSIM::FireSimImpl{ settings,scale }); });
 	choices.emplace_back(func1);
-	std::function<std::unique_ptr<SIM::Simulation>()> func2 = std::function(
-		[&]() { return std::make_unique<SIM::FluidSim>(SIM::FluidSim{ settings }); });
+	std::function<std::unique_ptr<FSIM::SFMLSimInterface>()> func2 = std::function(
+		[&]() { return std::make_unique<FSIM::FluidSimImpl>(FSIM::FluidSimImpl{ settings,scale }); });
 	choices.emplace_back(func2);
-	std::function<std::unique_ptr<SIM::Simulation>()> func3 = std::function(
-		[&]() { return std::make_unique<SIM::RayTracer>(SIM::RayTracer{ settings }); });
+	std::function<std::unique_ptr<FSIM::SFMLSimInterface>()> func3 = std::function(
+		[&]() { return std::make_unique<FSIM::RayTracerImpl>(FSIM::RayTracerImpl{ settings ,scale}); });
 	choices.emplace_back(func3);
 
 	sf::Font font;

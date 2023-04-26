@@ -1,6 +1,7 @@
 #pragma once
 #include "../baseinterface/Simulation.h"
-#include <utility> 
+#include <utility>
+#include <vector>
 namespace SIM {
 	class SimulationSetting;
 }
@@ -29,7 +30,7 @@ namespace SIM {
 		/*
 		 * translates the current simulation field to a size*size vector of colours for drawing. this vector is cached in this class under m_currentState for efficiency.
 		 */
-		std::vector<std::vector<SIM::colour>>& getCurrentState() final;
+		//std::vector<std::vector<SIM::colour>>& getCurrentState() final;
 		
 		/*
 		 * Handles a click for this simulation.
@@ -37,7 +38,7 @@ namespace SIM {
 		 * right click -> add new density source
 		 */
 		void handleClick(const bool isLeftClick, const int xpos, const int ypos) final;
-	private:
+	protected:
 		void addDensity(const int x, const int y, const float amount);
 		void addVelocity(const int x, const int y, const float amountX, const float amountY);
 		/*

@@ -2,7 +2,7 @@
 
 #include <vector>
 //A class that caches random numbers to use as a faster pseudorandom function
-namespace FSIM {
+namespace SIM {
 	class RandomNumberQueue {
 	public:
 		RandomNumberQueue(int size, int max);

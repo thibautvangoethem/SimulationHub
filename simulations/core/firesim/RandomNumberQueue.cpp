@@ -2,7 +2,7 @@
 
 #include <random>
 
-using namespace FSIM;
+using namespace SIM;
 
 RandomNumberQueue::RandomNumberQueue(int size, int max) :m_size{size} {
 	for (unsigned int i = 0; i < size; i++) {
