@@ -67,16 +67,12 @@ FireSim::FireSim(std::shared_ptr<SIM::SimulationSettings> settings) : SIM::Simul
 }
 
 void FireSim::advance(const double timestep) {
-	for (int i = 0; i < m_settings->getSize(); ++i) {
-		for (int j = 0; j < m_settings->getSize()+1; ++j) {
+	for (auto i = 0; i < m_settings->getSize(); ++i) {
+		for (auto j = 0; j < m_settings->getSize()+1; ++j) {
 			advancePixel(i, j);
 		}
 	}
 }
-
-//std::vector<std::vector<SIM::colour>>& FireSim::getCurrentState() {
-//	return m_currentState;
-//}
 
 
 /**
@@ -87,8 +83,6 @@ void FireSim::advance(const double timestep) {
  */
 void FireSim::advancePixel(int x, int y) {
     //2 random variables are used one to randomise the amount of decay and one to randomize the movement of the fire going up
-    /*int rand = std::rand() % 3;
-    int dst = static_cast<int>(round((std::rand() % 2)));*/
 	int rand = m_random1.getNext();
 	int dst=m_random2.getNext();
 

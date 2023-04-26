@@ -36,9 +36,9 @@ void FluidSimImpl::updateImage(sf::Image& simImage)
 	{
 		auto i = m_storedClick->first;
 		auto j = m_storedClick->second;
-		for (int is = 0; is < m_scale; ++is)
+		for (auto is = 0; is < m_scale; ++is)
 		{
-			for (int js = 0; js < m_scale; ++js)
+			for (auto js = 0; js < m_scale; ++js)
 			{
 				simImage.setPixel(i * m_scale + is, j * m_scale + js, sf::Color{0,255,0});
 			}

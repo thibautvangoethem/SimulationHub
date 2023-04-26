@@ -23,7 +23,7 @@ namespace SIM {
 		std::vector<std::vector<int>> m_currentStateNonMapped;
 		std::vector<SIM::colour> m_colorbuffer;
 
-		RandomNumberQueue m_random1{ 10000,2};
-		RandomNumberQueue m_random2{ 10000,2};
+		RandomNumberQueue m_random1{ 1000000,2};
+		RandomNumberQueue m_random2{ 1000000,2};
 	};
 }

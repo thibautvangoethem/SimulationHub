@@ -24,8 +24,8 @@ void RayTracer::advance(const double timestep)
 {
     static std::uniform_real_distribution<double> distribution(0.0, 1.0);
     static std::mt19937 generator;
-    for (int j = 0; j < m_size; ++j) {
-        for (int i = 0; i < m_size; ++i) {
+    for (auto j = 0; j < m_size; ++j) {
+        for (auto  i = 0; i < m_size; ++i) {
             Color pixelCol(0, 0, 0);
             for (int s = 0; s < m_samplesPerPixel; ++s) {
                 auto u = (i + distribution(generator)) / (m_size- 1);

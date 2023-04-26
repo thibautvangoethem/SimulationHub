@@ -1,7 +1,3 @@
-#include "core/baseinterface/Simulation.h"
-#include "core/firesim/FireSim.h"
-#include "core/fluidsim/FluidSim.h"
-#include "core/raytracer/RayTracer.h"
 #include "core/baseinterface/SimulationSettings.h"
 #include "sfmlFrontend/SFMLSimInterface.h"
 #include "sfmlFrontend/FireSimImpl.h"
@@ -12,27 +8,6 @@
 #include <functional>
 #include <SFML/Graphics.hpp>
 #include <iostream>
-
-//void makeImageFromArray(std::vector<std::vector<SIM::colour>>& pixelArray, int size, sf::Image& simImage,
-//	int windowSize)
-//{
-//	const int scale = windowSize / size;
-//	for (unsigned int i = 0; i < size; ++i)
-//	{
-//		for (unsigned int j = 0; j < size; ++j)
-//		{
-//			const auto& pix = pixelArray[j][i];
-//			const auto pixcol = sf::Color{ pix.r, pix.g, pix.b };
-//			for (int is = 0; is < scale; ++is)
-//			{
-//				for (int js = 0; js < scale; ++js)
-//				{
-//					simImage.setPixel(i * scale + is, j * scale + js, pixcol);
-//				}
-//			}
-//		}
-//	}
-//}
 
 void runSimulation(sf::RenderWindow& window, int scale, int size, int windowSize, std::unique_ptr<FSIM::SFMLSimInterface> sim)
 {
@@ -155,9 +130,9 @@ int main()
 			}
 		}
 
-		for (int i = 0; i < 4; ++i)
+		for (auto i = 0; i < 4; ++i)
 		{
-			for (int j = 0; j < 4; ++j)
+			for (auto j = 0; j < 4; ++j)
 			{
 				int index = i + j * 4;
 				sf::RectangleShape rectangle;
