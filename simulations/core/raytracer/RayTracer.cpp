@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <chrono>
 #include <random>
+#include <thread>
+#include <future>
 
 #include "materials/Lambertian.h"
 #include "materials/Metal.h"
@@ -105,33 +107,47 @@ RayTracer::RayTracer(std::shared_ptr<SIM::SimulationSettings> settings) : SIM::S
     
     m_samplesPerPixel = 50;
 }
-
+struct RayColorGetReturnStruct
+{
+    int x;
+    int y;
+    Color col;
+};
 void RayTracer::advance(const double timestep)
 {
     if (m_done) return;
+    std::vector<std::future<RayColorGetReturnStruct>> futureVec{};
+    futureVec.reserve(m_size * m_size);
     static std::uniform_real_distribution<double> distribution(0.0, 1.0);
     static std::mt19937 generator;
     for (auto j = 0; j < m_size; ++j) {
         for (auto  i = 0; i < m_size; ++i) {
-            Color pixelCol(0, 0, 0);
-            for (int s = 0; s < m_samplesPerPixel; ++s) {
-                auto u = (i + distribution(generator)) / (m_size- 1);
-                auto v = (j + distribution(generator)) / (m_size - 1);
-                Ray r = m_camera->getRay(u, v);
-                pixelCol += rayHit(r, m_world,m_maxDepth);
-            }
-
-            auto scale = 1.0 / m_samplesPerPixel;
-            auto r = std::sqrt(pixelCol.x() * scale);
-            auto g = std::sqrt(pixelCol.y() * scale);
-            auto b = std::sqrt(pixelCol.z() * scale);
-
-            auto ir = static_cast<uint8_t>(std::clamp(r,0.0,0.999)*256);
-            auto ig = static_cast<uint8_t>(std::clamp(g , 0.0, 0.999) * 256);
-            auto ib = static_cast<uint8_t>(std::clamp(b, 0.0, 0.999) * 256);
-
-            m_currentState[m_size - j - 1][i] = SIM::colour{ ir,ig,ib};
+            futureVec.emplace_back(std::async(std::launch::async, [this,i, j]()
+                {
+                    Color pixelCol(0, 0, 0);
+				    for (int s = 0; s < m_samplesPerPixel; ++s) {
+				        auto u = (i + distribution(generator)) / (m_size - 1);
+				        auto v = (j + distribution(generator)) / (m_size - 1);
+				        Ray r = m_camera->getRay(u, v);
+				        pixelCol += rayHit(r, m_world, m_maxDepth);
+					}
+                    return RayColorGetReturnStruct{ i,j,pixelCol };
+            }));
+            
         }
+    }
+    for (auto& fut : futureVec) {
+        auto val = fut.get();
+        auto scale = 1.0 / m_samplesPerPixel;
+        auto r = std::sqrt(val.col.x() * scale);
+        auto g = std::sqrt(val.col.y() * scale);
+        auto b = std::sqrt(val.col.z() * scale);
+
+        auto ir = static_cast<uint8_t>(std::clamp(r, 0.0, 0.999) * 256);
+        auto ig = static_cast<uint8_t>(std::clamp(g, 0.0, 0.999) * 256);
+        auto ib = static_cast<uint8_t>(std::clamp(b, 0.0, 0.999) * 256);
+
+        m_currentState[m_size - val.y - 1][val.x] = SIM::colour{ ir,ig,ib };
     }
     m_done = true;
 }
@@ -143,6 +159,7 @@ void RayTracer::handleClick(const bool isLeftClick, const int xpos, const int yp
 
 Color RayTracer::rayHit(const Ray& ray,const HittableShape& world, int depth) const
 {
+    
     // Gaurd against infinite recursion by simply cutting of the recursion
     if (depth <= 0)
         return Color(0, 0, 0);

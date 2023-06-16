@@ -64,10 +64,13 @@ void runSimulation(sf::RenderWindow& window, int scale, int size, int windowSize
 				currentTimeCount = 0;
 				frameCounter = 1;
 			}
-			if(frameCounter==1)
+
+			if (frameCounter == 1)
 			{
-				std::cout << "first frame: " << currentTimeCount << "s" << std::endl;
+				std::cout << "first frame: " << currentTimeCount << "s" << std::endl
+				frameCounter = 0;
 			}
+			
 			
 			//Note: placing the restart here means that with a tickrate of 0.5s it will actually be a 0.5+simulation time refreshrate. however the tickrate of the simulation will still remain the chosen tickrate
 			gameclock.restart();

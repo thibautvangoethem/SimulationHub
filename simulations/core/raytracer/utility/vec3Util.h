@@ -1,6 +1,6 @@
 #pragma once
 
-#define _USE_MATH_DEFINES
+//#define USE_MATH_DEFINES
 
 #include <random>
 #include <corecrt_math_defines.h>
@@ -10,8 +10,8 @@
 
 namespace RT
 {
-
-    using Point3 = Eigen::Vector3d;   // 3D point
+    //syntactic sugar for everyone
+    using Point3 = Eigen::Vector3d;   
     using Color = Eigen::Vector3d;
     using Vec3 = Eigen::Vector3d;
 
