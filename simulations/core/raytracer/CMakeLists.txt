@@ -10,8 +10,6 @@ set(LIB RAYTRACER)
 SET(SRC
     "RayTracer.h"
     "RayTracer.cpp"
-    "utility/vec3.h"
-    "utility/vec3.cpp"
     "utility/vec3Util.h"
     "utility/ray.h" 
     "hittableshapes/HittableShape.h"
@@ -22,6 +20,10 @@ SET(SRC
 ADD_LIBRARY(${LIB}  ${SRC})
 
 TARGET_INCLUDE_DIRECTORIES(${LIB} PUBLIC include)
+
+find_package(Eigen3 CONFIG REQUIRED)
+target_link_libraries(${LIB} PRIVATE Eigen3::Eigen)
+
 
 #target_link_libraries(main PRIVATE sfml-main)
 

@@ -6,9 +6,9 @@ using namespace RT;
 
 bool Sphere::hit(const Ray& ray, double tMin, double tMax, HitRecord& record) const {
     const Vec3 oc = ray.origin() - m_center;
-    const auto a = ray.direction().length_squared();
-    const auto half_b = dot(oc, ray.direction());
-    const auto c = oc.length_squared() - m_radius * m_radius;
+    const auto a = ray.direction().squaredNorm();
+    const auto half_b = oc.dot(ray.direction());
+    const auto c = oc.squaredNorm() - m_radius * m_radius;
 
     const auto discriminant = half_b * half_b - a * c;
     if (discriminant < 0) return false;

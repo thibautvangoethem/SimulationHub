@@ -1,6 +1,6 @@
 #pragma once
 #include "Material.h"
-#include "../utility/Vec3.h"
+#include "../utility/vec3Util.h"
 
 namespace RT
 {

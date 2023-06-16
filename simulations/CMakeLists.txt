@@ -20,7 +20,10 @@ TARGET_LINK_LIBRARIES(simulationHub LINK_PUBLIC BASE RAYTRACER)
 TARGET_LINK_LIBRARIES(simulationHub LINK_PUBLIC BASE SFMLFRONTEND)
 
 find_package(SFML COMPONENTS system window graphics CONFIG REQUIRED)
+
 target_link_libraries(simulationHub PRIVATE sfml-system sfml-network sfml-graphics sfml-window)
+
+
 if(USEAVX)
 	message("AVX2 will be used, linking in executable")
 	SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /arch:AVX2")

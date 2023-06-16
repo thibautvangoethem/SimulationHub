@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Vec3.h"
 #include "Vec3Util.h"
 
 namespace RT {

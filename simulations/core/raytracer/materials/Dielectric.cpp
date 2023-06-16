@@ -11,7 +11,7 @@ bool Dielectric::scatter(const Ray& rIn, const HitRecord& record, Color& attenua
 
 	const Vec3 unitDirection = unit_vector(rIn.direction());
 
-	double ct = fmin(dot(-unitDirection, record.normal), 1.0);
+	double ct = fmin(-unitDirection.dot(record.normal), 1.0);
 	double st = sqrt(1.0 - ct * ct);
 
 	const bool cannotRefract = refactRatio * st > 1.0;

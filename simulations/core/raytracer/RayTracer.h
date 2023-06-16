@@ -1,6 +1,6 @@
 #pragma once
 #include "../baseinterface/Simulation.h"
-#include "utility/Vec3.h"
+#include "../utility/vec3Util.h"
 #include "utility/Ray.h"
 #include "hittableshapes/HittableShape.h"
 #include "hittableshapes/HittableList.h"

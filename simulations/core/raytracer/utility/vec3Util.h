@@ -1,53 +1,24 @@
 #pragma once
 
 #define _USE_MATH_DEFINES
-#include "Vec3.h"
 
+#include <random>
 #include <corecrt_math_defines.h>
 #include <limits>
 
+#include <Eigen/Dense>
+
 namespace RT
 {
+
+    using Point3 = Eigen::Vector3d;   // 3D point
+    using Color = Eigen::Vector3d;
+    using Vec3 = Eigen::Vector3d;
+
     const double infinity = std::numeric_limits<double>::infinity();
 
-    inline Vec3 operator+(const Vec3& u, const Vec3& v) {
-        return Vec3(u.m_values[0] + v.m_values[0], u.m_values[1] + v.m_values[1], u.m_values[2] + v.m_values[2]);
-    }
-
-    inline Vec3 operator-(const Vec3& u, const Vec3& v) {
-        return Vec3(u.m_values[0] - v.m_values[0], u.m_values[1] - v.m_values[1], u.m_values[2] - v.m_values[2]);
-    }
-
-    inline Vec3 operator*(const Vec3& u, const Vec3& v) {
-        return Vec3(u.m_values[0] * v.m_values[0], u.m_values[1] * v.m_values[1], u.m_values[2] * v.m_values[2]);
-    }
-
-    inline Vec3 operator*(double t, const Vec3& v) {
-        return Vec3(t * v.m_values[0], t * v.m_values[1], t * v.m_values[2]);
-    }
-
-    inline Vec3 operator*(const Vec3& v, double t) {
-        return t * v;
-    }
-
-    inline Vec3 operator/(Vec3 v, double t) {
-        return (1 / t) * v;
-    }
-
-    inline double dot(const Vec3& u, const Vec3& v) {
-        return u.m_values[0] * v.m_values[0]
-            + u.m_values[1] * v.m_values[1]
-            + u.m_values[2] * v.m_values[2];
-    }
-
-    inline Vec3 cross(const Vec3& u, const Vec3& v) {
-        return Vec3(u.m_values[1] * v.m_values[2] - u.m_values[2] * v.m_values[1],
-            u.m_values[2] * v.m_values[0] - u.m_values[0] * v.m_values[2],
-            u.m_values[0] * v.m_values[1] - u.m_values[1] * v.m_values[0]);
-    }
-
     inline Vec3 unit_vector(Vec3 v) {
-        return v / v.length();
+        return v / v.norm();
     }
 
     inline double degrees_to_radians(const double degrees) {
@@ -56,14 +27,14 @@ namespace RT
 
     inline Vec3 reflect(const Vec3& v,const Vec3& n )
     {
-        return v - 2 * dot(v, n) * n;
+        return v - 2 * v.dot(n) * n;
     }
 
     inline Vec3 refract(const Vec3& uv, const Vec3& n,double frac)
     {
-        const auto sub1 = fmin(dot(-uv, n), 1.0);
+        const auto sub1 = fmin(-uv.dot(n), 1.0);
         const Vec3 perp = frac * (uv + sub1 * n);
-        const Vec3 parallel = -sqrt(fabs(1.0 - perp.length_squared())) * n;
+        const Vec3 parallel = -sqrt(fabs(1.0 - perp.squaredNorm())) * n;
         return perp + parallel;
     }
 
@@ -72,8 +43,39 @@ namespace RT
         static std::mt19937 generator;
         while (true) {
             auto p = Vec3(distribution(generator), distribution(generator), 0);
-            if (p.length_squared() >= 1) continue;
+            
+            if (p.squaredNorm() >= 1) continue;
             return p;
         }
     }
+
+    inline static Vec3 getRandomVec()
+    {
+        static std::uniform_real_distribution<double> distribution(0.0, 1.0);
+        static std::mt19937 generator;
+        return Vec3(distribution(generator), distribution(generator), distribution(generator));
+    }
+
+    inline static Vec3 randomVector(double min, double max) {
+        //TODO asses performance impact of creating the distributione aech time, if too slow replace with a 0-1 distribution and multiply, this would be faster but less accurate
+        static std::uniform_real_distribution<double> distribution(0.0, 1.0);
+        static std::mt19937 generator;
+        return Vec3(min + (max - min) * distribution(generator), min + (max - min) * distribution(generator), min + (max - min) * distribution(generator));
+    }
+
+    inline static bool nearZero(const Vec3& vec)
+        {
+            const auto s = 1e-8;
+            return (fabs(vec[0]) < s) && (fabs(vec[1]) < s) && (fabs(vec[2]) < s);
+        }
+
+    inline static Vec3 randomInUnitSPhere()
+{
+    while (true) {
+        auto randomVec = randomVector(-1, 1);
+        if (randomVec.squaredNorm() >= 1) continue;
+        return randomVec;
+    }
+}
+        
 }

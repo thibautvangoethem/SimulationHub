@@ -11,8 +11,8 @@ Camera::Camera(Point3 from, Point3 at, Point3 viewUp, double verticalFov, double
     const auto viewport_width = aspectRatio * viewport_height;
 
     m_w = unit_vector(from - at);
-    m_u = unit_vector(cross(viewUp,m_w));
-    m_v = cross(m_w, m_u);
+    m_u = unit_vector(viewUp.cross(m_w));
+    m_v = m_w.cross(m_u);
 
     m_origin = from;
     m_horizontal = focusDistance * viewport_width * m_u;

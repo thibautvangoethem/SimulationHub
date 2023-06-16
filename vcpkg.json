@@ -1,7 +1,8 @@
 {
   "name": "fluidsim",
   "version": "0.0.1",
-  "dependencies": [ 
-   "sfml" 
+  "dependencies": [
+    "sfml",
+    "eigen3"
   ]
 }

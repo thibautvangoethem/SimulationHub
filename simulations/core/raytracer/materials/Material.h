@@ -1,6 +1,5 @@
 #pragma once
 #include "../utility/Ray.h"
-#include "../utility/Vec3.h"
 
 namespace RT
 {

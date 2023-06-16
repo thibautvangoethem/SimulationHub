@@ -69,18 +69,18 @@ RayTracer::RayTracer(std::shared_ptr<SIM::SimulationSettings> settings) : SIM::S
             auto choose_mat = distribution(generator);
             Point3 center(a + 0.9 * distribution(generator), 0.2, b + 0.9 * distribution(generator));
 
-            if ((center - Point3(4, 0.2, 0)).length() > 0.9) {
+            if ((center - Point3(4, 0.2, 0)).norm() > 0.9) {
                 std::shared_ptr<Material> sphere_material;
 
                 if (choose_mat < 0.8) {
                     // diffuse
-                    auto albedo = Color::random(0,1) * Color::random(0,1);
+                    auto albedo = randomVector(0,1).cwiseProduct(randomVector(0,1));
                     sphere_material = std::make_shared<Lambertian>(albedo);
                     m_world.add(std::make_shared<Sphere>(center, 0.2, sphere_material));
                 }
                 else if (choose_mat < 0.95) {
                     // metal
-                    auto albedo = Color::random(0.5, 1);
+                    auto albedo = randomVector(0.5, 1);
                     auto fuzz = distrFuzz(generator);
                     sphere_material = std::make_shared<Metal>(albedo, fuzz);
                     m_world.add(std::make_shared<Sphere>(center, 0.2, sphere_material));
@@ -151,7 +151,7 @@ Color RayTracer::rayHit(const Ray& ray,const HittableShape& world, int depth) co
         Ray scattered;
         Color attenuation;
         if(record.material->scatter(ray,record,attenuation,scattered))
-            return attenuation * rayHit(scattered, world, depth - 1);
+            return attenuation.cwiseProduct(rayHit(scattered, world, depth - 1));
         return Color{ 0,0,0 };
     }
     Vec3 unitDirection = unit_vector(ray.direction());
