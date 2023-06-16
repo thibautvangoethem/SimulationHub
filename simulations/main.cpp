@@ -62,7 +62,11 @@ void runSimulation(sf::RenderWindow& window, int scale, int size, int windowSize
 			{
 				std::cout <<"500 frame average: " << currentTimeCount/500 <<"s"<< std::endl;
 				currentTimeCount = 0;
-				frameCounter = 0;
+				frameCounter = 1;
+			}
+			if(frameCounter==1)
+			{
+				std::cout << "first frame: " << currentTimeCount << "s" << std::endl;
 			}
 			
 			//Note: placing the restart here means that with a tickrate of 0.5s it will actually be a 0.5+simulation time refreshrate. however the tickrate of the simulation will still remain the chosen tickrate
@@ -72,12 +76,11 @@ void runSimulation(sf::RenderWindow& window, int scale, int size, int windowSize
 	}
 }
 
-
 int main()
 {
 	//Dont feel like dealing with adding resources to an executable atm
 	std::string fontLocation = R"(C:\Users\thiba\source\repos\FluidSim\arial\arial.ttf)";
-	int size = 512;
+	int size = 256;
 	int scale = 2;
 	int windowSize = size * scale;
 	sf::RenderWindow window(sf::VideoMode(windowSize, windowSize), "simulations");
@@ -168,11 +171,8 @@ int main()
 				}
 			}
 		}
-
 		window.display();
 	}
-
-
 	return 0;
 }
 

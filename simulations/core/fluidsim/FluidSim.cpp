@@ -55,8 +55,6 @@ void FluidSim::advance(const double timestep) {
 
 
 }
-/*std::vector<std::vector<SIM::colour>>& FluidSim::getCurrentState() {
-}*/
 
 void FluidSim::addDensity(const int x,const int y,const float amount) {
 	m_density[x*m_size + y] += amount;
@@ -100,7 +98,8 @@ void FluidSim::setBoundary(const int b, std::vector<float>& array) {
 	// And this makes no sense at all. This line simply makes it so one corner (top right one) is averaged over its 2 neighbors. Removing the one makes it so it gets averaged over one neighbor and itself (0 at start).
 	// Sure I can see this as an inaccuracy, and in all 3 other corners it will work like that. But not in this corner for some reason. Here it likes to create a very non findable bug.
 	// Fun thing, the problem does not even end up occurring here, it is actually the linear solver that ends up blowing up later on. You know, to make it more findable.
-	// Yes I accidentally removed it, and yes I spent multiple hours trying to fix it. Now it gets a nice variable, so at least my compiler will complain that there is unused variable is present.
+	// Yes I accidentally removed it, and yes I spent multiple hours trying to fix it. Now it gets a nice variable, so at least my compiler will complain that there is unused variable present.
+	// Update: I just found out that for some reason it will only break in debug executables, not in optimized ones, this just does not make sense
 	constexpr int loadBearingOne = 1;
 	array[(m_size - 1)*m_size] = 0.5 * (array[(m_size - 2)*m_size] + array[(m_size - 1)*m_size+ loadBearingOne]);
 	array[(m_size - 1)*m_size + (m_size - 1)] = 0.5 * (array[(m_size - 2)*m_size + (m_size - 1)] + array[(m_size - 1)*m_size + (m_size - 2)]);

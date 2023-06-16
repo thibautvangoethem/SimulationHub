@@ -1,13 +1,15 @@
 #pragma once
 #include "../utility/Ray.h"
+#include "../materials//Material.h"
+#include <memory>
 
 namespace RT
 {
 	struct HitRecord {
 		Point3 p;
 		Vec3 normal;
+		std::shared_ptr<Material> material;
 		double t;
-
 		bool frontFace;
 
 		inline void setFaceNormal(const Ray& ray, const Vec3& outwardNormal) {

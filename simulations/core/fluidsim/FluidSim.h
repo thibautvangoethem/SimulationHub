@@ -26,11 +26,6 @@ namespace SIM {
 		 *Advances the simulation by the given time. Very high timesteps (>0.5) cause a high inaccuracy in the simulation
 		 */
 		void advance(const double timestep) final;
-
-		/*
-		 * translates the current simulation field to a size*size vector of colours for drawing. this vector is cached in this class under m_currentState for efficiency.
-		 */
-		//std::vector<std::vector<SIM::colour>>& getCurrentState() final;
 		
 		/*
 		 * Handles a click for this simulation.

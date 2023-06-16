@@ -19,15 +19,15 @@ namespace RT {
 	public:
 		RayTracer(std::shared_ptr<SIM::SimulationSettings> settings);
 		void advance(const double timestep) final;
-		//std::vector<std::vector<SIM::colour>>& getCurrentState() final;
 		void handleClick(const bool isLeftClick, const int xpos, const int ypos) final;
 	protected:
-		Color rayHit(const Ray& ray,const HittableShape& world) const;
+		Color rayHit(const Ray& ray,const HittableShape& world, int depth) const;
 		std::vector<std::vector<SIM::colour>> m_currentState;
 		int m_size;
 		hittableList m_world;
 		int m_samplesPerPixel;
-		Camera m_camera;
-
+		std::unique_ptr<Camera> m_camera;
+		int m_maxDepth = 20;
+		bool m_done = false;
 	};
 }

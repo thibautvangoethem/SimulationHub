@@ -1,21 +1,30 @@
 #include "Camera.h"
 using namespace RT;
 
-Camera::Camera()
+Camera::Camera(Point3 from, Point3 at, Point3 viewUp, double verticalFov, double aspectRatio, double aperture, double focusDistance)
 {
     //I am simply drawing square images here, this can be changed to fit the 16/9 aspect ratio of a default screen
-    auto aspect_ratio = 1.0;
-    auto viewport_height = 2.0;
-    auto viewport_width = aspect_ratio * viewport_height;;
-    auto focal_length = 1.0;
+    const auto theta = degrees_to_radians(verticalFov);
+    const auto h = tan(theta / 2);
 
-    m_origin = Point3(0, 0, 0);
-    m_horizontal = Vec3(viewport_width, 0.0, 0.0);
-    m_vertical = Vec3(0.0, viewport_height, 0.0);
-    m_lowerLeftCorner= m_origin - m_horizontal / 2 - m_vertical / 2 - Vec3(0, 0, focal_length);
+    const auto viewport_height = 2.0*h;
+    const auto viewport_width = aspectRatio * viewport_height;
+
+    m_w = unit_vector(from - at);
+    m_u = unit_vector(cross(viewUp,m_w));
+    m_v = cross(m_w, m_u);
+
+    m_origin = from;
+    m_horizontal = focusDistance * viewport_width * m_u;
+    m_vertical = focusDistance* viewport_height * m_v;
+    m_lowerLeftCorner= m_origin - m_horizontal / 2 - m_vertical / 2 - focusDistance*m_w;
+
+    m_lensRadius = aperture / 2;
 }
 
 Ray Camera::getRay(const double u, const double v) const
 {
-    return Ray(m_origin, m_lowerLeftCorner+ u * m_horizontal + v * m_vertical - m_origin);
+    const Vec3 rd = m_lensRadius * randomInUnitDisk();
+    const Vec3 offset = m_u * rd.x() + m_v * rd.y();
+    return Ray(m_origin+offset, m_lowerLeftCorner+ u * m_horizontal + v * m_vertical - m_origin-offset);
 }

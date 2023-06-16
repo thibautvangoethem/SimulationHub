@@ -16,7 +16,7 @@ SET(SRC
     "utility/ray.h" 
     "hittableshapes/HittableShape.h"
     "hittableshapes/Sphere.h" "hittableshapes/Sphere.cpp" "hittableshapes/HittableList.h" "hittableshapes/HittableList.cpp"
-"Camera.h" "Camera.cpp")
+"Camera.h" "Camera.cpp" "materials/Material.h" "materials/Lambertian.cpp" "materials/Lambertian.h" "materials/Metal.h" "materials/Metal.cpp" "materials/Dielectric.h" "materials/Dielectric.cpp")
 
 
 ADD_LIBRARY(${LIB}  ${SRC})
