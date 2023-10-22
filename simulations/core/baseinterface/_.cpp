@@ -1,1 +1,1 @@
-//This file pruely exist to trick cmakelist to actually work as this library only contains headers
+//This file purely exist to trick cmakelist to actually work as this library only contains headers

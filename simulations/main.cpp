@@ -3,6 +3,7 @@
 #include "sfmlFrontend/FireSimImpl.h"
 #include "sfmlFrontend/FluidSimImpl.h"
 #include "sfmlFrontend/RayTracerImpl.h"
+#include "sfmlFrontend/SlimeSimimpl.h"
 
 #include <chrono>
 #include <functional>
@@ -48,6 +49,7 @@ void runSimulation(sf::RenderWindow& window, int scale, int size, int windowSize
 				}
 			}
 			sim->advanceSim(timeBased ? gameclock.getElapsedTime().asSeconds() : tickrate);
+			gameclock.restart();
 			sim->updateImage(simImage);
 			window.clear();
 			//makeImageFromArray(sim->getCurrentState(), size, simImage, windowSize);
@@ -58,6 +60,10 @@ void runSimulation(sf::RenderWindow& window, int scale, int size, int windowSize
 			window.draw(sprite);
 			frameCounter += 1;
 			currentTimeCount += gameclock.getElapsedTime().asSeconds();
+			if (frameCounter == 1)
+			{
+				std::cout << "first frame: " << currentTimeCount << "s" << std::endl;
+			}
 			if(frameCounter==500)
 			{
 				std::cout <<"500 frame average: " << currentTimeCount/500 <<"s"<< std::endl;
@@ -65,15 +71,7 @@ void runSimulation(sf::RenderWindow& window, int scale, int size, int windowSize
 				frameCounter = 1;
 			}
 
-			if (frameCounter == 1)
-			{
-				std::cout << "first frame: " << currentTimeCount << "s" << std::endl;
-				frameCounter = 0;
-			}
 			
-			
-			//Note: placing the restart here means that with a tickrate of 0.5s it will actually be a 0.5+simulation time refreshrate. however the tickrate of the simulation will still remain the chosen tickrate
-			gameclock.restart();
 			window.display();
 		}
 	}
@@ -92,6 +90,7 @@ int main()
 	settings->setunlockedTime(true);
 	settings->setDiffusion(0.000001);
 	settings->setViscosity(0.000001);
+	settings->setTimeBased(true);
 
 
 	std::vector<std::function<std::unique_ptr<FSIM::SFMLSimInterface>()>> choices;
@@ -106,11 +105,16 @@ int main()
 	std::function<std::unique_ptr<FSIM::SFMLSimInterface>()> func3 = std::function(
 		[&]() { return std::make_unique<FSIM::RayTracerImpl>(FSIM::RayTracerImpl{ settings ,scale}); });
 	choices.emplace_back(func3);
+	std::function<std::unique_ptr<FSIM::SFMLSimInterface>()> func4 = std::function(
+		[&]() { return std::make_unique<FSIM::SlimeSimImpl>(FSIM::SlimeSimImpl{ settings ,scale }); });
+	choices.emplace_back(func4);
 
 	sf::Font font;
 	font.loadFromFile(fontLocation);
 	int split = windowSize / 4;
 	int implemented = choices.size();
+	bool running = false;
+	int simIndexRunning=0;
 	while (window.isOpen())
 	{
 		window.clear();
@@ -123,10 +127,11 @@ int main()
 				window.close();
 				break;
 			case sf::Event::MouseButtonPressed:
-				int index = event.mouseButton.x / split + (event.mouseButton.y / split) * 4;
-				if (index < implemented) {
-					std::cout << "Running simulation: " << index << std::endl;
-					runSimulation(window, scale, size, windowSize, choices[index]());
+				
+				simIndexRunning = event.mouseButton.x / split + (event.mouseButton.y / split) * 4;
+				if (simIndexRunning < implemented) {
+					running = true;
+					std::cout << "Running simulation: " << simIndexRunning << std::endl;
 				}
 				else
 				{
@@ -135,46 +140,51 @@ int main()
 				break;
 			}
 		}
-
-		for (auto i = 0; i < 4; ++i)
-		{
-			for (auto j = 0; j < 4; ++j)
+		if (running) {
+			runSimulation(window, scale, size, windowSize, choices[simIndexRunning]());
+			running = false;
+		}
+		else {
+			for (auto i = 0; i < 4; ++i)
 			{
-				int index = i + j * 4;
-				sf::RectangleShape rectangle;
-				rectangle.setSize(sf::Vector2f(split, split));
-				rectangle.setOutlineColor(sf::Color::Blue);
-				rectangle.setOutlineThickness(5);
-				rectangle.setPosition(i * split, j * split);
-				window.draw(rectangle);
-				if (index < implemented) {
-					sf::Text text(std::to_string(index), font);
-					text.setCharacterSize(30);
-					text.setStyle(sf::Text::Bold);
-					text.setFillColor(sf::Color::Black);
-					text.setPosition(i * split, j * split);
-					window.draw(text);
-				}
-				else
+				for (auto j = 0; j < 4; ++j)
 				{
-					sf::Vertex line1[2];
-					line1[0].position = sf::Vector2f(i * split, j * split);
-					line1[0].color = sf::Color::Red;
-					line1[1].position = sf::Vector2f((i + 1) * split, (j + 1) * split);
-					line1[1].color = sf::Color::Red;
+					int index = i + j * 4;
+					sf::RectangleShape rectangle;
+					rectangle.setSize(sf::Vector2f(split, split));
+					rectangle.setOutlineColor(sf::Color::Blue);
+					rectangle.setOutlineThickness(5);
+					rectangle.setPosition(i * split, j * split);
+					window.draw(rectangle);
+					if (index < implemented) {
+						sf::Text text(std::to_string(index), font);
+						text.setCharacterSize(30);
+						text.setStyle(sf::Text::Bold);
+						text.setFillColor(sf::Color::Black);
+						text.setPosition(i * split, j * split);
+						window.draw(text);
+					}
+					else
+					{
+						sf::Vertex line1[2];
+						line1[0].position = sf::Vector2f(i * split, j * split);
+						line1[0].color = sf::Color::Red;
+						line1[1].position = sf::Vector2f((i + 1) * split, (j + 1) * split);
+						line1[1].color = sf::Color::Red;
 
-					sf::Vertex line2[2];
-					line2[0].position = sf::Vector2f((i + 1) * split, j * split);
-					line2[0].color = sf::Color::Red;
-					line2[1].position = sf::Vector2f(i * split, (j + 1) * split);
-					line2[1].color = sf::Color::Red;
+						sf::Vertex line2[2];
+						line2[0].position = sf::Vector2f((i + 1) * split, j * split);
+						line2[0].color = sf::Color::Red;
+						line2[1].position = sf::Vector2f(i * split, (j + 1) * split);
+						line2[1].color = sf::Color::Red;
 
-					window.draw(line1, 2, sf::Lines);
-					window.draw(line2, 2, sf::Lines);
+						window.draw(line1, 2, sf::Lines);
+						window.draw(line2, 2, sf::Lines);
+					}
 				}
 			}
+			window.display();
 		}
-		window.display();
 	}
 	return 0;
 }
