@@ -2,8 +2,6 @@
 # project specific logic here.
 #
 SET(USEAVX true)
-cmake_minimum_required (VERSION 3.8)
-project ("SimulationHub")
 
 add_subdirectory("core")
 add_subdirectory("sfmlFrontend")
@@ -11,14 +9,16 @@ add_subdirectory("sfmlFrontend")
 SET(SRC "main.cpp")
 
 
-add_executable (simulationHub ${SRC})
+add_executable(simulationHub ${SRC})
 
-TARGET_LINK_LIBRARIES(simulationHub LINK_PUBLIC BASE FIRESIM)
-TARGET_LINK_LIBRARIES(simulationHub LINK_PUBLIC BASE FLUIDSIM)
-TARGET_LINK_LIBRARIES(simulationHub LINK_PUBLIC BASE RAYTRACER)
-TARGET_LINK_LIBRARIES(simulationHub LINK_PUBLIC BASE SLIMESIM)
+TARGET_LINK_LIBRARIES(simulationHub LINK_PUBLIC BASE)
+TARGET_LINK_LIBRARIES(simulationHub LINK_PUBLIC FIRESIM)
+TARGET_LINK_LIBRARIES(simulationHub LINK_PUBLIC FLUIDSIM)
+TARGET_LINK_LIBRARIES(simulationHub LINK_PUBLIC RAYTRACER)
+TARGET_LINK_LIBRARIES(simulationHub LINK_PUBLIC SLIMESIM)
+TARGET_LINK_LIBRARIES(simulationHub LINK_PUBLIC CUDAINTEROP)
 
-TARGET_LINK_LIBRARIES(simulationHub LINK_PUBLIC BASE SFMLFRONTEND)
+TARGET_LINK_LIBRARIES(simulationHub LINK_PUBLIC SFMLFRONTEND)
 
 find_package(SFML COMPONENTS system window graphics CONFIG REQUIRED)
 

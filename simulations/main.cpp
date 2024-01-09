@@ -81,7 +81,7 @@ int main()
 {
 	//Dont feel like dealing with adding resources to an executable atm
 	std::string fontLocation = R"(C:\Users\thiba\source\repos\FluidSim\arial\arial.ttf)";
-	int size = 256;
+	int size = 512;
 	int scale = 2;
 	int windowSize = size * scale;
 	sf::RenderWindow window(sf::VideoMode(windowSize, windowSize), "simulations");

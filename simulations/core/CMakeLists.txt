@@ -1,9 +1,4 @@
-﻿# CMakeList.txt : CMake project for Fluidsim, include source and define
-# project specific logic here.
-#	
-SET(USEAVX true)
-cmake_minimum_required (VERSION 3.8)
-project ("SimulationHub")
+﻿SET(USEAVX true)
 set(LIB CORE)
 
 add_subdirectory("baseinterface")
@@ -11,12 +6,13 @@ add_subdirectory("firesim")
 add_subdirectory("fluidsim")
 add_subdirectory("raytracer")
 add_subdirectory("slimesim")
+add_subdirectory("cudainterop")
 
 SET(SRC
     "_.cpp")
 
 
-ADD_LIBRARY(${LIB}  ${SRC} )
+ADD_LIBRARY(${LIB} STATIC ${SRC} )
 
 TARGET_INCLUDE_DIRECTORIES(${LIB} PUBLIC include)
 

@@ -1,9 +1,4 @@
-﻿# CMakeList.txt : CMake project for Fluidsim, include source and define
-# project specific logic here.
-#	
-SET(USEAVX true)
-cmake_minimum_required (VERSION 3.8)
-project ("SimulationHub")
+﻿SET(USEAVX true)
 set(LIB RAYTRACER)
 
 # Add source to this project's executable.
@@ -17,7 +12,7 @@ SET(SRC
 "Camera.h" "Camera.cpp" "materials/Material.h" "materials/Lambertian.cpp" "materials/Lambertian.h" "materials/Metal.h" "materials/Metal.cpp" "materials/Dielectric.h" "materials/Dielectric.cpp")
 
 
-ADD_LIBRARY(${LIB}  ${SRC})
+ADD_LIBRARY(${LIB} STATIC ${SRC})
 
 TARGET_INCLUDE_DIRECTORIES(${LIB} PUBLIC include)
 
