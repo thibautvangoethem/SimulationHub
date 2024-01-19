@@ -41,8 +41,8 @@ namespace SSIM {
 
 		//TODO put in settings
 		const double speed = 100.0;
-		const double evaporate= 0.99;
-		const double steerStrength = 8;
+		const double evaporate= 0.95;
+		const double steerStrength = 2;
 		const int  sensorSize = 16;
 		const double sensorDirOffset = 8.0;
 	};

@@ -7,8 +7,9 @@ SSIM::SlimeSim::SlimeSim(std::shared_ptr<SIM::SimulationSettings> settings):Simu
 	m_field = std::vector<float>(m_size * m_size, 0);
 	m_agents =std::vector<std::unique_ptr<SlimeAgent>>();
 	
-	for (int i = 0; i < 512; i++) {
-		m_agents.push_back(std::make_unique<SlimeAgent>(m_size / 2, m_size / 2, (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))*2*M_PI));
+	for (int i = 0; i < 4096; i++) {
+		//m_agents.push_back(std::make_unique<SlimeAgent>(m_size / 2, m_size / 2, (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))*2*M_PI));
+		m_agents.push_back(std::make_unique<SlimeAgent>(m_size* ((rand()*1.0)/ RAND_MAX), m_size * ((rand() * 1.0) / RAND_MAX), (static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * 2 * M_PI));
 	}
 }
 

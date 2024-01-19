@@ -6,7 +6,6 @@ add_subdirectory("firesim")
 add_subdirectory("fluidsim")
 add_subdirectory("raytracer")
 add_subdirectory("slimesim")
-add_subdirectory("cudainterop")
 
 SET(SRC
     "_.cpp")

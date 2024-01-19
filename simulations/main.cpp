@@ -81,8 +81,8 @@ int main()
 {
 	//Dont feel like dealing with adding resources to an executable atm
 	std::string fontLocation = R"(C:\Users\thiba\source\repos\FluidSim\arial\arial.ttf)";
-	int size = 512;
-	int scale = 2;
+	int size = 256;
+	int scale = 4;
 	int windowSize = size * scale;
 	sf::RenderWindow window(sf::VideoMode(windowSize, windowSize), "simulations");
 	auto settings = std::make_shared<SIM::SimulationSettings>(size, false);
@@ -90,7 +90,7 @@ int main()
 	settings->setunlockedTime(true);
 	settings->setDiffusion(0.000001);
 	settings->setViscosity(0.000001);
-	settings->setTimeBased(true);
+	settings->setTimeBased(false);
 
 
 	std::vector<std::function<std::unique_ptr<FSIM::SFMLSimInterface>()>> choices;
